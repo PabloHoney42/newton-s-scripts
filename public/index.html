@@ -1,0 +1,99 @@
+<html>
+
+<head>
+	<title>Newton's Scripts</title>
+	<link rel="stylesheet" href="/stylesheets/style.css">
+	<link rel="icon" href="favicon.ico">
+</head>
+
+<body>
+	<h1>SIMULADOR DE MOVIMENTOS CINÉTICOS</h1>
+	<h2>Lançamento horizontal e lançamento oblíquo no vácuo</h2>
+	<p><cite>Quando um corpo é lançado horizontalmente no vácuo, ele descreve, em relação à terra,
+			uma trajetória parabólica</cite> - Galileu Galilei</p>
+
+	<form id="values-form">
+		<fieldset>
+			<label for="acceleration">Aceleração da gravidade (padrão: 10 m/s²):</label> <br />
+			<input id="acceleration" name="acceleration" type="number" value="10" max="999" required /> <br />
+
+			<label for="speedY">Velocidade vertical inicial:</label> <br />
+			<input id="speedY" name="speedY" type="number" minlength="0" max="999" required /> <br />
+
+			<label for="speedX">Velocidade horizontal inicial:</label> <br />
+			<input id="speedX" name="speedX" type="number" minlength="0" max="999" required />
+
+			<input type="submit" value="Simular" />
+		</fieldset>
+	</form>
+
+	<p>
+		<h3>Simulação</h3>
+		<div id="simulationArea" style="border: 1px dotted violet; width: 480px; height: 270px;"></div>
+	</p>
+</body>
+
+<script>
+	const values_form = document.getElementById('values-form');
+	values_form.addEventListener("submit", function (event) {
+		event.preventDefault();
+		const acceleration = values_form.acceleration.value;
+		const speedX = values_form.speedX.value;
+		const speedY = values_form.speedY.value;
+
+		startSimulation(acceleration, speedX, speedY);
+	});
+
+	let obj;
+	function startSimulation(acceleration, speedX, speedY) {
+		obj = new component(20, 20, 'red', 30, 230, speedX, speedY, acceleration);
+
+		clearInterval(simulationArea.interval);
+		simulationArea.start();
+	}
+
+	const simulationArea = {
+		canvas: document.createElement("canvas"),
+		area: document.getElementById("simulationArea"),
+		start: function () {
+			this.canvas.width = 480;
+			this.canvas.height = 270;
+			this.context = this.canvas.getContext("2d");
+			this.area.insertBefore(this.canvas, this.area.childNodes[0]);
+			this.frameNo = 0;
+			this.interval = setInterval(updateSimulationArea, 20);
+		},
+		clear: function () {
+			this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		}
+	}
+
+	function updateSimulationArea() {
+		simulationArea.clear();
+		obj.newPos();
+		obj.update();
+	}
+
+	function component(width, height, color, x, y, speedX, speedY, acceleration) {
+		this.width = width;
+		this.height = height;
+		this.speedX = (speedX * 0.02);
+		this.speedY = (speedY * 0.02);
+		this.gravityAcceleration = (acceleration * 0.02);
+		this.x = x;
+		this.y = y;
+		this.update = function () {
+			ctx = simulationArea.context;
+			ctx.fillStyle = color;
+			ctx.fillRect(this.x, this.y, this.width, this.height);
+		}
+		this.newPos = function() {
+				this.speedY -= this.gravityAcceleration;
+        this.x += this.speedX;
+        this.y -= this.speedY;
+        // this.hitBottom();
+    }
+	}
+</script>
+
+</html>
